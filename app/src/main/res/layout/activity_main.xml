@@ -14,7 +14,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/darker_gray"
-        android:fitsSystemWindows="true"/>
+        app:layout_behavior="co.com.parsoniisolutions.custombottomsheetbehavior.ParallaxBehavior"
+        android:fitsSystemWindows="true">
+
+        <TextView
+            android:layout_gravity="center"
+            android:text="Centered text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </FrameLayout>
     <!--</FrameLayout>-->
     <!--<fragment-->
     <!--android:layout_width="match_parent"-->
@@ -22,57 +31,15 @@
     <!--android:id="@+id/support_map"-->
     <!--android:name="com.google.android.gms.maps.SupportMapFragment"/>-->
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/appbarlayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        app:layout_behavior="co.com.parsoniisolutions.custombottomsheetbehavior.FirstAppBarLayoutBehavior">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:popupTheme="@style/AppTheme.PopupOverlay"/>
-    </android.support.design.widget.AppBarLayout>
-
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/expanded_appbarlayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        android:tag="modal-appbar"
-        app:layout_behavior="co.com.parsoniisolutions.custombottomsheetbehavior.SecondAppBarLayoutBehavior">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/expanded_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:title="@string/key_binding_default_toolbar_name"
-            app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel"/>
-
-    </android.support.design.widget.AppBarLayout>
-
-
-    <ImageView
-        android:id="@+id/bottomsheet_backdrop2"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/cheese_3"
-        app:layout_behavior="co.com.parsoniisolutions.custombottomsheetbehavior.BackdropBottomSheetBehavior"/>
-
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:tag="bottom_sheet"
         app:behavior_peekHeight="80dp"
         android:id="@+id/bottom_sheet"
-
-        app:layout_behavior="co.com.parsoniisolutions.custombottomsheetbehavior.BottomSheetBehaviorGoogleMapsLike"
-        app:anchorPoint="200dp">
+        app:layout_behavior="@string/bottom_sheet_behavior"
+        app:anchorPoint="400dp">
 
         <include
             layout="@layout/bottom_sheet_content"
@@ -80,6 +47,12 @@
             android:layout_height="match_parent"/>
 
     </android.support.v4.widget.NestedScrollView>
+
+    <FrameLayout
+        app:layout_behavior="co.com.parsoniisolutions.custombottomsheetbehavior.AlertsBehavior"
+        android:background="@color/colorAccent"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"/>
 
 
     <android.support.design.widget.FloatingActionButton

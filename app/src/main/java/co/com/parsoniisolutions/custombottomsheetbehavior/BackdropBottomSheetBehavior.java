@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.widget.NestedScrollView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
 
@@ -24,13 +25,13 @@ public class BackdropBottomSheetBehavior<V extends View> extends CoordinatorLayo
 
     @Override
     public boolean layoutDependsOn(CoordinatorLayout parent, View child, View dependency) {
+        Log.d("Backdrop", String.format("layoutDependsOn: %s -----\n%s", child, dependency));
         return dependency instanceof NestedScrollView;
     }
 
     @Override
     public boolean onDependentViewChanged(CoordinatorLayout parent, View child,
                                           View dependency) {
-
         if (mYmultiplier == 0) {
             initValues(child, dependency);
             return true;
