@@ -32,8 +32,8 @@ public class MainActivity extends AppCompatActivity {
 //            @Override
 //            public void onStateChanged(@NonNull View bottomSheet, int newState) {
 //                switch (newState) {
-//                    case BottomSheetBehaviorGoogleMapsLike.STATE_COLLAPSED:
-//                        Log.d("bottomsheet-", "STATE_COLLAPSED");
+//                    case BottomSheetBehaviorGoogleMapsLike.STATE_COLLAPSE:
+//                        Log.d("bottomsheet-", "STATE_COLLAPSE");
 //                        break;
 //                    case BottomSheetBehaviorGoogleMapsLike.STATE_DRAGGING:
 //                        Log.d("bottomsheet-", "STATE_DRAGGING");

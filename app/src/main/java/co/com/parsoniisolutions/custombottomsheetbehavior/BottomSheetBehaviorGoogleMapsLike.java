@@ -39,7 +39,6 @@ import java.util.Vector;
  ~ limitations under the License.
  */
 public class BottomSheetBehaviorGoogleMapsLike<V extends View> extends CoordinatorLayout.Behavior<V> {
-
     /**
      * Callback for monitoring events about bottom sheets.
      */
@@ -120,6 +119,9 @@ public class BottomSheetBehaviorGoogleMapsLike<V extends View> extends Coordinat
 
     @State
     private int mState = STATE_COLLAPSED;
+
+    @State
+    private int mLastKnownState = mState;
 
     private ViewDragHelper mViewDragHelper;
 
@@ -503,6 +505,7 @@ public class BottomSheetBehaviorGoogleMapsLike<V extends View> extends Coordinat
         if (state == mState) {
             return;
         }
+        mLastKnownState = mState;
         if (mViewRef == null) {
             // The view is not laid out yet; modify mState and let onLayoutChild handle it later
             /**
@@ -791,4 +794,7 @@ public class BottomSheetBehaviorGoogleMapsLike<V extends View> extends Coordinat
         return (BottomSheetBehaviorGoogleMapsLike<V>) behavior;
     }
 
+    public void setLastKnownState() {
+        setState(mLastKnownState);
+    }
 }

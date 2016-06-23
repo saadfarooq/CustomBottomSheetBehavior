@@ -5,27 +5,26 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ParallaxBehavior<V extends View> extends CoordinatorLayout.Behavior<V> {
-    @IntDef({STATE_FULL, STATE_COLLAPSED})
+    private BottomSheetBehaviorGoogleMapsLike<View> bottomSheetsBehavior;
+    private AlertsBehavior<View> alertsBehavior;
+
+    @IntDef({STATE_GO_FULL, STATE_COLLAPSE})
     @Retention(RetentionPolicy.SOURCE)
-    private @interface State {}
+    @interface State {}
 
-    private static final int STATE_FULL = 1;
-    private static final int STATE_COLLAPSED = 2;
-
-    private final List<StateChangeListener> listeners = new ArrayList<>(2); // init with 2, we're unlikely to have more
+    static final int STATE_GO_FULL = 1;
+    static final int STATE_COLLAPSE = 2;
 
     @ParallaxBehavior.State
-    private int mState = STATE_FULL;
+    private int mState = STATE_GO_FULL;
 
     private V mChild;
 
@@ -33,12 +32,11 @@ public class ParallaxBehavior<V extends View> extends CoordinatorLayout.Behavior
 
     public ParallaxBehavior(Context context, AttributeSet attrs) {
         super(context, attrs);
-        Log.d("ParallaxBehavior", "Constructing");
     }
 
     @Override
     public boolean layoutDependsOn(CoordinatorLayout parent, final V child, View dependency) {
-        return BehaviorHelper.hasBehavior(dependency, BottomSheetBehaviorGoogleMapsLike.class);
+        return BehaviorHelper.hasBehavior(dependency, BottomSheetBehaviorGoogleMapsLike.class) || BehaviorHelper.hasBehavior(dependency, AlertsBehavior.class);
     }
 
     @Override
@@ -46,34 +44,10 @@ public class ParallaxBehavior<V extends View> extends CoordinatorLayout.Behavior
         if (mChild == null) {
             initValues(child, dependency);
         }
-        return false;
-    }
-
-    private void initValues(V child, View dependency) {
-        mChild = child;
-        mChild.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN && mState == STATE_FULL) {
-                    notifyListenersToChangeState(view, STATE_COLLAPSED);
-                    mState = STATE_COLLAPSED;
-                }
-                return false;
-            }
-        });
-
-        mChild.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mState == STATE_COLLAPSED) {
-                    notifyListenersToChangeState(v, STATE_FULL);
-                    mState = STATE_FULL;
-                }
-            }
-        });
 
         if (BehaviorHelper.hasBehavior(dependency, BottomSheetBehaviorGoogleMapsLike.class)) {
-            BottomSheetBehaviorGoogleMapsLike.from(dependency).addBottomSheetCallback(new BottomSheetBehaviorGoogleMapsLike.BottomSheetCallback() {
+            bottomSheetsBehavior = BottomSheetBehaviorGoogleMapsLike.from(dependency);
+            bottomSheetsBehavior.addBottomSheetCallback(new BottomSheetBehaviorGoogleMapsLike.BottomSheetCallback() {
                 @Override
                 public void onStateChanged(@NonNull View bottomSheet, @BottomSheetBehaviorGoogleMapsLike.State int newState) {
 
@@ -85,20 +59,55 @@ public class ParallaxBehavior<V extends View> extends CoordinatorLayout.Behavior
                 }
             });
         }
-    }
 
-    public void onStateChangeListener(StateChangeListener listener) {
-        listeners.add(listener);
-    }
-
-    private void notifyListenersToChangeState(View view, @State int targetState) {
-        for (StateChangeListener listener : listeners) {
-            listener.onStateChanged(view, targetState);
+        if (BehaviorHelper.hasBehavior(dependency, AlertsBehavior.class)) {
+            alertsBehavior = AlertsBehavior.from(dependency);
         }
+
+
+        return false;
     }
 
-    public interface StateChangeListener {
-        void onStateChanged(View view, @State int newState);
+    private void initValues(V child, View dependency) {
+        mChild = child;
+        mChild.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN && mState == STATE_GO_FULL) {
+                    bottomSheetsBehavior.setState(BottomSheetBehaviorGoogleMapsLike.STATE_COLLAPSED);
+                    alertsBehavior.setState(AlertsBehavior.STATE_COLLAPSED);
+                    mState = STATE_COLLAPSE;
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        mChild.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mState == STATE_COLLAPSE) {
+                    bottomSheetsBehavior.setLastKnownState();
+                    alertsBehavior.setState(AlertsBehavior.STATE_EXPANDED);
+                    mState = STATE_GO_FULL;
+                }
+            }
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <V extends View> ParallaxBehavior<V> from(V view) {
+        ViewGroup.LayoutParams params = view.getLayoutParams();
+        if (!(params instanceof CoordinatorLayout.LayoutParams)) {
+            throw new IllegalArgumentException("The view is not a child of CoordinatorLayout");
+        }
+        CoordinatorLayout.Behavior behavior = ((CoordinatorLayout.LayoutParams) params)
+                .getBehavior();
+        if (!(behavior instanceof ParallaxBehavior)) {
+            throw new IllegalArgumentException(
+                    "The view is not associated with BottomSheetBehaviorGoogleMapsLike");
+        }
+        return (ParallaxBehavior<V>) behavior;
     }
 
 }
