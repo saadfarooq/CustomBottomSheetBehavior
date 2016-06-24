@@ -1,17 +1,26 @@
 package co.com.parsoniisolutions.custombottomsheetbehavior;
 
 import android.content.Context;
+import android.support.annotation.IntDef;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 public class AlertsBehavior<V extends View> extends CoordinatorLayout.Behavior<V> {
+    @IntDef({STATE_COLLAPSED, STATE_EXPANDED})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface State{}
+
     public static final int STATE_EXPANDED = 1;
     public static final int STATE_COLLAPSED = 2;
     private V mChild;
-    private int state;
+    @State
+    private int mState = STATE_EXPANDED;
 
     public AlertsBehavior() {}
 
@@ -21,7 +30,9 @@ public class AlertsBehavior<V extends View> extends CoordinatorLayout.Behavior<V
 
     @Override
     public boolean onLayoutChild(CoordinatorLayout parent, V child, int layoutDirection) {
-        mChild  = child;
+        if (mChild == null) {
+            mChild  = child;
+        }
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) child.getLayoutParams();
         params.gravity = Gravity.TOP;
         return false;
@@ -42,7 +53,13 @@ public class AlertsBehavior<V extends View> extends CoordinatorLayout.Behavior<V
         return (AlertsBehavior<V>) behavior;
     }
 
-    public void setState(int state) {
-        mChild.setVisibility(mChild.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+    public void setState(@State int newState) {
+        if (newState == STATE_EXPANDED && mState == STATE_COLLAPSED) {
+            mChild.animate().translationY(0).start();
+            mState = STATE_EXPANDED;
+        } else if (newState == STATE_COLLAPSED && mState == STATE_EXPANDED) {
+            mChild.animate().translationY(-mChild.getHeight()).start();
+            mState = STATE_COLLAPSED;
+        }
     }
 }
